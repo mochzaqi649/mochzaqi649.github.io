@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
+ <head>
 <meta charset="UTF-8">
 <title>Toko Alat Musik</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;scroll-behavior:smooth}
 
-body{background:#0f0f0f;color:white}
+body{background:#000000;color:white}
 
 header{
 display:flex;justify-content:space-between;
@@ -94,6 +94,10 @@ footer .btn{
 .produk{
   padding:80px 40px; /* atas diperbesar */
   text-align:center;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('toko.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
 .produk h2{
@@ -119,6 +123,48 @@ background:#1c1c1c;padding:15px;border-radius:10px
   margin-bottom: 10px;
 }
 
+.product-rating{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+  color:#ffd700;
+  font-size:14px;
+}
+
+.penjualan{
+  padding:40px 30px;
+  text-align:center;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('toko.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.diagram-small{
+  max-width:360px;
+  margin:16px auto 0;
+  background:#181818;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.2);
+}
+
+.diagram-small canvas{
+  width:100% !important;
+  height:auto !important;
+}
+
+.product-rating span{
+  color:#ffd700;
+}
+
+.product-rating small{
+  color:#bbb;
+  font-size:13px;
+}
+
 .deskripsi {
   font-size: 15px;
   color: #757575;
@@ -138,7 +184,22 @@ margin-top:10px;padding:5px;border:none;
 background:#1e90ff;color:white;border-radius:5px;cursor:pointer
 }
 
-.keranjang,.pembayaran{padding:40px}
+.keranjang{
+  padding:28px 30px 20px;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('toko.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.pembayaran{
+  padding:20px 30px 30px;
+  margin-top:-10px;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('toko.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
 
 footer{text-align:center;padding:20px;background:#111}
 
@@ -165,6 +226,7 @@ padding:30px;border-radius:15px;text-align:center
 
 <header>
 <h2>🎵 Toko ZAKY STORE</h2>
+<small>👥 Pengunjung: <span id="visitor">0</span></small>
 <nav>
 <a href="#home">Home</a>
 <a href="#produk">Belanja</a>
@@ -207,6 +269,13 @@ padding:30px;border-radius:15px;text-align:center
 <button class="btn" onclick="checkout()">Checkout</button>
 </section>
 
+<section id="penjualan" class="penjualan">
+<h2>Ringkasan Penjualan</h2>
+<div class="diagram-small">
+  <canvas id="chartPenjualan" width="320" height="180"></canvas>
+</div>
+</section>
+
 <footer>
 <p>© 2026 Toko Musik</p>
 <br>
@@ -222,20 +291,107 @@ padding:30px;border-radius:15px;text-align:center
 <button onclick="tutup()">OK</button>
 </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  
 const noWA="6285608728137";
 
+let chart;
+
+function buatChart(){
+  const ctx = document.getElementById('chartPenjualan');
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(penjualan),
+      datasets: [{
+        label: 'Terjual',
+        data: Object.values(penjualan),
+        backgroundColor: '#00c853',
+        borderRadius: 8,
+        barThickness: 18
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#ddd' } },
+        y: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#ddd', beginAtZero: true } }
+      }
+    }
+  });
+}
+
+function updateChart(){
+  if(!chart) return;
+  chart.data.datasets[0].data = Object.values(penjualan);
+  chart.update();
+}
+
+let penjualan = JSON.parse(localStorage.getItem("penjualan")) || {
+  "Gendang": 0,
+  "Gitar": 0,
+  "suling": 0,
+  "biola": 0,
+  "Drum": 0,
+  "cello": 0
+};
+
+let visitor = localStorage.getItem("visitor");
+
+if(visitor === null){
+  visitor = 1;
+} else {
+  visitor = parseInt(visitor) + 1;
+}
+                    
+localStorage.setItem("visitor", visitor);
+
+document.getElementById("visitor").innerText = visitor;
+
 let produk=[
-{name:"Gendang",harga:200000,img:"Gendang.png",deskripsi:"(Untuk ukuran 30-40cm.) <br>Gendang ini terbuat dari kayu jati berkualitas dengan lapisan kulit kambing/sensitif yang menghasilkan suara nyaring dan kuat."},
-{name:"Gitar",harga:500000,img:"guitar.jpg",deskripsi:"(Untuk ukuran 4/4 dengan panjang +100) <br>gitar ini Terbuat dari kayu mahoni dan spruce yang menghasilkan suara jernih."},
-{name:"suling",harga:700000,img:"suling1.jpg",deskripsi:"(Untuk ukuran panjang +40cm.) <br>suling ini Terbuat dari bambu pilihan yang ringan dan menghasilkan suara lembut serta merdu."},
-{name:"biola",harga:800000,img:"biola.jpeg",deskripsi:"(Untuk ukuran 4/4 dengan panjang +60cm.) <br>biola ini Terbuat dari kayu maple dan spruce berkualitas tinggi."},
-{name:"Drum",harga:1500000,img:"Drum.jpg",deskripsi:"(Untuk ukuran standar.) <br>Drum ini Terbuat dari kombinasi kayu dan logam."},
-{name:"cello",harga:3000000,img:"cello.jpg",deskripsi:"(Untuk ukuran dengan tinggi +120cm) <br>cello ini Terbuat dari kayu maple dan spruce yang menghasilkan suara dalam."},
+{name:"Gendang",harga:200000,img:"Gendang.png",deskripsi:"Untuk ukuran 30-40cm. Gendang ini terbuat dari kayu jati berkualitas dengan lapisan kulit kambing/sensitif yang menghasilkan suara nyaring dan kuat.",reviews:[{name:'Rina',rating:5,comment:'Kualitas suara sangat baik.'},{name:'Budi',rating:4,comment:'Bagus, harga terjangkau.'}]},
+{name:"Gitar",harga:500000,img:"guitar.jpg",deskripsi:"Untuk ukuran 4/4 dengan panjang +100. Gitar ini terbuat dari kayu mahoni dan spruce yang menghasilkan suara jernih.",reviews:[{name:'Lina',rating:5,comment:'Suaranya jernih sekali.'}]},
+{name:"suling",harga:700000,img:"suling1.jpg",deskripsi:"Untuk ukuran panjang +40cm. Suling ini terbuat dari bambu pilihan yang ringan dan menghasilkan suara lembut serta merdu.",reviews:[{name:'Agus',rating:4,comment:'Mudah dimainkan, suara enak.'}]},
+{name:"biola",harga:800000,img:"biola.jpeg",deskripsi:"Untuk ukuran 4/4 dengan panjang +60cm. Biola ini terbuat dari kayu maple dan spruce berkualitas tinggi.",reviews:[{name:'Maya',rating:5,comment:'Bagus untuk pemula.'}]},
+{name:"Drum",harga:1500000,img:"Drum.jpg",deskripsi:"Untuk ukuran standar. Drum ini terbuat dari kombinasi kayu dan logam.",reviews:[{name:'Iwan',rating:4,comment:'Pukulannya mantap.'}]},
+{name:"cello",harga:3000000,img:"cello.jpg",deskripsi:"Untuk ukuran dengan tinggi +120cm. Cello ini terbuat dari kayu maple dan spruce yang menghasilkan suara dalam.",reviews:[{name:'Sari',rating:5,comment:'Bassnya kuat dan lembut.'}]},
 ];
 
 let keranjang=[];
+
+function averageRating(reviews){
+  if(!reviews || reviews.length === 0) return 0;
+  return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+}
+
+function formatStars(value){
+  const full = '★'.repeat(value);
+  const empty = '☆'.repeat(5 - value);
+  return full + empty;
+}
+
+function reviewProduct(index){
+  const produkDipilih = produk[index];
+  const rating = parseInt(prompt(`Nilai ${produkDipilih.name} (1-5):`, '5'), 10);
+  if(!rating || rating < 1 || rating > 5) return;
+  const comment = prompt('Tulis komentar untuk produk ini:');
+  if(!comment || !comment.trim()) return;
+  produkDipilih.reviews.unshift({name:'Pelanggan',rating,comment:comment.trim()});
+  tampil();
+}
+
+function reviewCartItem(i){
+  const itemName = keranjang[i].name;
+  const index = produk.findIndex(p => p.name === itemName);
+  if(index !== -1){
+    reviewProduct(index);
+  }
+}
 
 // format rupiah
 function rupiah(angka){
@@ -247,13 +403,22 @@ function tampil(){
 let grid=document.getElementById('grid');
 grid.innerHTML="";
 produk.forEach((p,i)=>{
+const ratingValue = Math.round(averageRating(p.reviews));
+const countReview = p.reviews.length;
 grid.innerHTML+=`
 <div class="card fade">
 <img src="${p.img}">
 <h3>${p.name}</h3>
+<div class="product-rating">
+  <span>${formatStars(ratingValue)}</span>
+  <small>${countReview} ulasan</small>
+</div>
 <p class="deskripsi">${p.deskripsi}</p>
 <p>Rp ${rupiah(p.harga)}</p>
-<button onclick="tambah(${i})">Tambah</button>
+<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+  <button onclick="tambah(${i})">Tambah</button>
+  <button onclick="reviewProduct(${i})">Ulasan</button>
+</div>
 </div>`;
 });
 }
@@ -285,6 +450,7 @@ list.innerHTML+=`
 ${item.name} - Rp ${rupiah(item.harga)} x ${item.qty}
 <button onclick="tambahQty(${i})">+</button>
 <button onclick="kurangQty(${i})">-</button>
+<button onclick="reviewCartItem(${i})">Ulasan</button>
 </li>`;
 });
 
@@ -350,6 +516,16 @@ window.open(`https://wa.me/${noWA}?text=${encodeURIComponent(pesan)}`);
 
 document.getElementById("popup").style.display="flex";
 
+keranjang.forEach(item => {
+  if(penjualan[item.name] !== undefined){
+    penjualan[item.name] += item.qty;
+  } else {
+    penjualan[item.name] = item.qty;
+  }
+});
+localStorage.setItem("penjualan", JSON.stringify(penjualan));
+updateChart();
+
 keranjang=[];
 render();
 }
@@ -373,9 +549,17 @@ e.classList.add("show");
 }
 
 window.addEventListener("scroll",animasi);
-window.addEventListener("load",animasi);
+window.addEventListener("load",()=>{
+  animasi();
+});
 
-tampil();
+function init(){
+  tampil();
+  render();
+  buatChart();
+}
+
+window.addEventListener("DOMContentLoaded", init);
 </script>
 
 </body>
