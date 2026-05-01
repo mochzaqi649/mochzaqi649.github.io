@@ -57,13 +57,20 @@ background-size:cover;background-position:center;
   }
 
   .grid{
-    grid-template-columns:repeat(2,1fr); /* jadi 2 kolom */
+    grid-template-columns:1fr; /* satu kolom agar tidak terlalu ke kanan */
+    place-items:stretch;
+  }
+
+  .card{
+    text-align:center;
   }
 
   .card img{
     width: 100%;
-    object-fit: cover; /* gambar lebih kecil */
+    object-fit: cover;
     aspect-ratio: 1/1;
+    display:block;
+    margin:0 auto;
   }
 
   .keranjang, .pembayaran{
