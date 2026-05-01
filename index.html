@@ -59,9 +59,11 @@ background-size:cover;background-position:center;
   .grid{
     grid-template-columns:1fr; /* satu kolom agar tidak terlalu ke kanan */
     place-items:stretch;
+    gap:20px;
   }
 
   .card{
+    width:100%;
     text-align:center;
   }
 
@@ -71,6 +73,14 @@ background-size:cover;background-position:center;
     aspect-ratio: 1/1;
     display:block;
     margin:0 auto;
+  }
+
+  .hero,
+  .produk,
+  .penjualan,
+  .keranjang,
+  .pembayaran{
+    background-attachment: scroll;
   }
 
   .keranjang, .pembayaran{
@@ -432,15 +442,16 @@ grid.innerHTML+=`
 
 // tambah barang
 function tambah(i){
-let item = keranjang.find(x=>x.name===produk[i].name);
+  let item = keranjang.find(x=>x.name===produk[i].name);
 
-if(item){
-item.qty++;
-}else{
-keranjang.push({...produk[i],qty:1});
-}
+  if(item){
+    item.qty++;
+  } else {
+    keranjang.push({...produk[i],qty:1});
+  }
 
-render();
+  render();
+  document.getElementById('keranjang').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // render keranjang
